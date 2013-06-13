@@ -14,6 +14,7 @@ class proxy {
         boolean error = false;
         
         int i = 0;
+        // First bug identified: index out of bounds :-)
         Integer parselocalport = new Integer(args[i]);
         Integer parseremoteport = new Integer(args[i+2]);
         Socket incoming, outgoing = null;
@@ -33,7 +34,7 @@ class proxy {
         }
         
         // Check for valid local and remote port, hostname not null
-        
+        // Second bug: no space in text :-)
         System.out.println("Checking: Port" + localport + " to " + remotehost + " Port " + remoteport);
         
         if(localport <= 0){

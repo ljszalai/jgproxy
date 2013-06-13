@@ -4,3 +4,9 @@ via link
 http://www.dwgold.com/code/proxy/proxyServer.zip
 
 Author: Daniel W. Goldberg
+
+Text for copyright:
+This stuff is published under uncopyright can be read at http://mnmlist.com/uncopyright
+Please keep it seriously and as readable under the 'Terms and conditions' section, 'Do whatever the hell you like.'
+
+Attribution, of course, is appreciated but not needed.
