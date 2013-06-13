@@ -1,0 +1,6 @@
+This package has been downloaded from 
+http://www.dwgold.com/Projects/Networking/Proxyserver/Default.aspx
+via link
+http://www.dwgold.com/code/proxy/proxyServer.zip
+
+Author: Daniel W. Goldberg
