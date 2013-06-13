@@ -97,7 +97,7 @@ class ProxyThread extends Thread {
 					outgoing.close();
 				}
 				// Note Tap & tamper goes here ...
-				tapper.Tap(new StreamSlice(buffer, numberRead));
+				tapBuffer(buffer, numberRead);
 				ToClient.write(buffer, 0, numberRead);
 
 
@@ -111,6 +111,11 @@ class ProxyThread extends Thread {
 			// TODO
 		}
 
+	}
+	
+	private void tapBuffer(byte[] buffer, int count) {
+		if (tapper != null)
+			tapper.Tap(new StreamSlice(buffer, count));
 	}
 
 }

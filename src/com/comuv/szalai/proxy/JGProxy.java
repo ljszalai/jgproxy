@@ -29,12 +29,54 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import com.comuv.szalai.proxy.interfaces.IStreamTamperer;
 import com.comuv.szalai.proxy.interfaces.IStreamTapper;
 
 public class JGProxy {
 
-	private boolean b_run = true;
-	private IStreamTapper tapper = null;
+	protected static final int backLog = 64;
+	
+	private boolean b_run;
+	private IStreamTapper tapper;
+	private IStreamTamperer tamperer;
+
+	private TcpConnectionData nearEnd;
+	private TcpConnectionData farEnd;
+
+	private Socket incoming;
+	private Socket outgoing;
+	private ServerSocket Server;
+
+	public JGProxy(String localHost, int localPort, String remoteHost, int remotePort) {
+		initDefaults();
+		initConnData(localHost, localPort, remoteHost, remotePort);
+	}
+
+	public JGProxy(TcpConnectionData nearEnd, TcpConnectionData farEnd) {
+		initDefaults();
+		initConnData(nearEnd.getHostName(), nearEnd.getPort(), farEnd.getHostName(), farEnd.getPort());
+	}
+
+	public JGProxy() {
+		initDefaults();
+		initConnData(null, -1, null, -1);	
+	}
+
+	private void initDefaults() {
+		b_run = true;
+		tapper = null;
+		tamperer = null;
+		incoming  = null;
+		outgoing = null;
+		Server = null;
+	}
+
+	private void initConnData(String localHost, int localPort, String remoteHost, int remotePort) {
+		nearEnd.setHostName(localHost);
+		nearEnd.setPort(localPort);
+		farEnd.setHostName(remoteHost);
+		farEnd.setPort(remotePort);
+	}
 
 	public IStreamTapper getTapper() {
 		return tapper;
@@ -44,66 +86,30 @@ public class JGProxy {
 		this.tapper = tapper;
 	}
 
+	public IStreamTamperer getTamperer() {
+		return tamperer;
+	}
+
+	public void setTamperer(IStreamTamperer tamperer) {
+		this.tamperer = tamperer;
+	}
+
 	public void stopProxy() {
 		this.b_run = false;
 	}
 
-	public void runProxy(String args[]) throws IOException{
-
-		//parse arguments from command line
-
-		int localport = -1;
-		int remoteport = -1;
-		String remotehost = null;
-		boolean error = false;
-
-		int i = 0;
-		// First bug identified: index out of bounds :-)
-		Socket incoming, outgoing = null;
-		ServerSocket Server = null;
-
-		try
-		{
-			localport = Integer.parseInt(args[i], 10);
-			remotehost = args[i+1];
-			remoteport = Integer.parseInt(args[i+2], 10);
-		}
-
-		catch(Exception e)
-		{
-			System.err.println("Error: " + e.getMessage() + "\n");
-			error = true;
-		}
-
-		// Check for valid local and remote port, hostname not null
-		// Second bug: no space in text :-)
-		System.out.println("Checking: Port" + localport + " to " + remotehost + " Port " + remoteport);
-
-		if(localport <= 0){
-			System.err.println("Error: Invalid Local Port Specification " + "\n");
-			error = true;
-		}
-		if(remoteport <=0){
-			System.err.println("Error: Invalid Remote Port Specification " + "\n");
-			error = true;
-		}
-		if(remotehost == null){
-			System.err.println("Error: Invalid Remote Host Specification " + "\n");
-			error = true;
-		}
-
-		//If any errors so far, exit program
-
-		if(error)
-			System.exit(-1);
-
+	public void runProxy() {
 		//Test and create a listening socket at proxy
 
 		try{
-			Server = new ServerSocket(localport);
+			Server = 
+					(nearEnd.getHostName()==null) ? 
+							new ServerSocket(nearEnd.getPort(), backLog) : 
+							new ServerSocket(nearEnd.getPort(), backLog, nearEnd.getHostInetAddress());
 		}
 		catch(IOException e) {
-			e.printStackTrace();
+			System.err.println("Error: Unknown Host " + nearEnd.getHostName());
+			System.exit(-1);
 		}
 
 		//Loop to listen for incoming connection, and accept if there is one
@@ -116,9 +122,8 @@ public class JGProxy {
 				ProxyThread thread1;
 				ProxyThread thread2;
 
-				// TODO Modify this to accept not only local values
 				incoming = Server.accept();
-				outgoing = new Socket(remotehost, remoteport); 
+				outgoing = new Socket(farEnd.getHostName(), farEnd.getPort()); 
 
 				if (tapper == null) {
 					thread1 = new ProxyThread(incoming, outgoing);
@@ -132,7 +137,7 @@ public class JGProxy {
 				thread2.start();
 			} 
 			catch (UnknownHostException e) {
-				System.err.println("Error: Unknown Host " + remotehost);
+				System.err.println("Error: Unknown Host " + farEnd.getHostName());
 				System.exit(-1);
 			} 
 			catch(IOException e){
