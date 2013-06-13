@@ -129,7 +129,6 @@ public class JGProxy {
 				} else {
 					thread1 = new ProxyThread(incoming, outgoing, tapper);
 					thread2 = new ProxyThread(outgoing, incoming, tapper);
-
 				}
 				thread1.start();
 				thread2.start();
