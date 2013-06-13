@@ -72,10 +72,8 @@ public class JGProxy {
 	}
 
 	private void initConnData(String localHost, int localPort, String remoteHost, int remotePort) {
-		nearEnd.setHostName(localHost);
-		nearEnd.setPort(localPort);
-		farEnd.setHostName(remoteHost);
-		farEnd.setPort(remotePort);
+		nearEnd = new TcpConnectionData(localHost, localPort);
+		farEnd = new TcpConnectionData(remoteHost, remotePort);
 	}
 
 	public IStreamTapper getTapper() {
