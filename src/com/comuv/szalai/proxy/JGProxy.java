@@ -29,10 +29,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import com.comuv.szalai.proxy.interfaces.IStreamTapper;
+
 public class JGProxy {
-	
+
 	private boolean b_run = true;
-	
+	private IStreamTapper tapper = null;
+
+	public IStreamTapper getTapper() {
+		return tapper;
+	}
+
+	public void setTapper(IStreamTapper tapper) {
+		this.tapper = tapper;
+	}
+
 	public void stopProxy() {
 		this.b_run = false;
 	}
@@ -48,16 +59,14 @@ public class JGProxy {
 
 		int i = 0;
 		// First bug identified: index out of bounds :-)
-		Integer parselocalport = new Integer(args[i]);
-		Integer parseremoteport = new Integer(args[i+2]);
 		Socket incoming, outgoing = null;
 		ServerSocket Server = null;
 
 		try
 		{
-			localport = parselocalport.parseInt(args[i], 10);
+			localport = Integer.parseInt(args[i], 10);
 			remotehost = args[i+1];
-			remoteport = parseremoteport.parseInt(args[i+2], 10);
+			remoteport = Integer.parseInt(args[i+2], 10);
 		}
 
 		catch(Exception e)
@@ -88,7 +97,6 @@ public class JGProxy {
 		if(error)
 			System.exit(-1);
 
-
 		//Test and create a listening socket at proxy
 
 		try{
@@ -99,24 +107,31 @@ public class JGProxy {
 		}
 
 		//Loop to listen for incoming connection, and accept if there is one
-		
+
 		//Third problem: why don't we use a thread instead of this endless loop?
 
 		while(b_run)
 		{
 			try{
+				ProxyThread thread1;
+				ProxyThread thread2;
+
+				// TODO Modify this to accept not only local values
 				incoming = Server.accept();
-				//Create the 2 threads for the incoming and outgoing traffic of proxy server
 				outgoing = new Socket(remotehost, remoteport); 
 
-				ProxyThread thread1 = new ProxyThread(incoming, outgoing);
-				thread1.start();
+				if (tapper == null) {
+					thread1 = new ProxyThread(incoming, outgoing);
+					thread2 = new ProxyThread(outgoing, incoming);
+				} else {
+					thread1 = new ProxyThread(incoming, outgoing, tapper);
+					thread2 = new ProxyThread(outgoing, incoming, tapper);
 
-				ProxyThread thread2 = new ProxyThread(outgoing, incoming);
+				}
+				thread1.start();
 				thread2.start();
 			} 
 			catch (UnknownHostException e) {
-				//Test and make connection to remote host
 				System.err.println("Error: Unknown Host " + remotehost);
 				System.exit(-1);
 			} 
@@ -129,17 +144,3 @@ public class JGProxy {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

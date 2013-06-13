@@ -51,18 +51,32 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import com.comuv.szalai.proxy.interfaces.IStreamTapper;
+import com.comuv.szalai.proxy.manipulators.ConsoleStreamTapper;
+
 class ProxyThread extends Thread {
 
-	// Size of receive buffer
 	public static final int bufSize = 2048;
 	
-Socket incoming, outgoing;
+	private Socket incoming;
+	private Socket outgoing;
+	private IStreamTapper tapper;
+	
 
 	//Thread constructor
 
+	// TODO value checking
 	ProxyThread(Socket in, Socket out){
 		incoming = in;
 		outgoing = out;
+		tapper = new ConsoleStreamTapper();
+	}
+
+	// TODO value checking
+	ProxyThread(Socket in, Socket out, IStreamTapper tap){
+		incoming = in;
+		outgoing = out;
+		tapper = tap;
 	}
 
 	//Overwritten run() method of thread -- does the data transfers
@@ -77,14 +91,13 @@ Socket incoming, outgoing;
 			ToClient = outgoing.getOutputStream();      
 			FromClient = incoming.getInputStream();
 			while(((numberRead=FromClient.read(buffer))>0)&&!isInterrupted()){
-				
-				System.out.println("read " + numberRead);
 
 				if(numberRead == -1){
 					incoming.close();
 					outgoing.close();
 				}
-				// TODO Tap & tamper goes here ...
+				// Note Tap & tamper goes here ...
+				tapper.Tap(new StreamSlice(buffer, numberRead));
 				ToClient.write(buffer, 0, numberRead);
 
 
