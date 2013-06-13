@@ -16,6 +16,8 @@ Copyright 2013 Laszlo Szalai
 
 package com.comuv.szalai.proxy;
 
+import java.nio.ByteBuffer;
+
 public class StreamSlice {
 	
 	private byte[] bytes;
@@ -31,6 +33,12 @@ public class StreamSlice {
 		super();
 		this.bytes = streamSlice.getBytes();
 		this.count = streamSlice.getCount();
+	}
+
+	public StreamSlice(ByteBuffer buf) {
+		super();
+		this.bytes = new byte[buf.remaining()];
+		this.count = bytes.length;
 	}
 
 	public StreamSlice() {
@@ -51,6 +59,12 @@ public class StreamSlice {
 
 	public void setCount(int count) {
 		this.count = count;
+	}
+	
+	public ByteBuffer getAsByteBuffer() {
+		ByteBuffer buf = ByteBuffer.wrap(bytes);
+		buf.put(bytes);
+		return buf;
 	}
 	
 }
