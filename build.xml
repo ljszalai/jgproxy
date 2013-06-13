@@ -1,0 +1,88 @@
+<project name="JGProxy" default="dist" basedir=".">
+	<description>
+        this is a simple ant build file
+    </description>
+	<!-- set global properties for this build -->
+	<property name='app.version' value='1.0'/>
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="dist" location="dist"/>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init"
+            description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" compiler="javac1.6" includeantruntime="false">
+			<!-- Set classpath properly for build -->
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile"
+            description="generate the timestamped distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}"/>
+		<!-- Put everything in ${build} into the ${dist}/${ant.project.name}-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/${ant.project.name}-${DSTAMP}.jar" basedir="${build}">
+		    <manifest>
+		      <!-- Who is building this jar? -->
+		      <attribute name="Built-By" value="${user.name}"/>
+		      <!-- Information about the program itself -->
+		        <attribute name="Specification-Title" value="${ant.project.name}"/>
+		        <attribute name="Specification-Version" value="${app.version}"/>
+		        <attribute name="Specification-Vendor" value="szalai.comuv.com"/>
+		        <attribute name="Implementation-Title" value="${ant.project.name}"/>
+		        <attribute name="Implementation-Version" value="${app.version} ${TODAY}"/> 
+		        <attribute name="Implementation-Vendor" value="szalai.comuv.com"/>
+				<attribute name="Main-Class" value="com.comuv.szalai.proxy.runners.ProxyRunner"/>
+				<attribute name="Class-Path" value="."/>
+		      <!-- details -->
+		      <section name="common/MyClass.class">
+		        <attribute name="Sealed" value="false"/>
+		      </section>
+		    </manifest>
+			<!-- fileset dir="C:/Users/szalail/partD/Carol/code/Git/migrated/testaut/hcwst/bin"/ -->
+		</jar>
+	</target>
+
+	<target name="dist_nover" depends="compile"
+            description="generate the distribution without version identification">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}"/>
+
+		<!-- Put everything in ${build} into the ${dist}/${ant.project.name}.jar file -->
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}">
+		    <manifest>
+		      <!-- Who is building this jar? -->
+		      <attribute name="Built-By" value="${user.name}"/>
+		      <!-- Information about the program itself -->
+		        <attribute name="Specification-Title" value="${ant.project.name}"/>
+		        <attribute name="Specification-Version" value="${app.version}"/>
+		        <attribute name="Specification-Vendor" value="szalai.comuv.com"/>
+		        <attribute name="Implementation-Title" value="${ant.project.name}"/>
+		        <attribute name="Implementation-Version" value="${app.version} ${TODAY}"/> 
+		        <attribute name="Implementation-Vendor" value="szalai.comuv.com"/>
+				<attribute name="Main-Class" value="com.comuv.szalai.proxy.runners.ProxyRunner"/>
+				<attribute name="Class-Path" value="."/>
+		      <!-- details -->
+		      <section name="common/MyClass.class">
+		        <attribute name="Sealed" value="false"/>
+		      </section>
+		    </manifest>
+			<!-- fileset dir="C:/Users/szalail/partD/Carol/code/Git/migrated/testaut/hcwst/bin"/ -->
+		</jar>
+
+	</target>
+
+	<target name="clean"
+            description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
