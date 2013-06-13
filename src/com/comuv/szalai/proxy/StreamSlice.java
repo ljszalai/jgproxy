@@ -43,6 +43,8 @@ public class StreamSlice {
 
 	public StreamSlice() {
 		super();
+		this.bytes = null;
+		this.count = -1;
 	}
 
 	public byte[] getBytes() {
@@ -51,16 +53,13 @@ public class StreamSlice {
 
 	public void setBytes(byte[] bytes) {
 		this.bytes = bytes;
+		this.count = bytes.length;
 	}
 
 	public int getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
-	}
-	
 	public ByteBuffer getAsByteBuffer() {
 		ByteBuffer buf = ByteBuffer.wrap(bytes);
 		buf.put(bytes);
