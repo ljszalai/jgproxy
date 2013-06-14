@@ -30,14 +30,14 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.comuv.szalai.proxy.interfaces.IStreamTamperer;
-import com.comuv.szalai.proxy.interfaces.IStreamTapper;
+import com.comuv.szalai.proxy.interfaces.IStreamMonitor;
 
 public class JGProxy {
 
 	protected static final int backLog = 64;
 	
 	private boolean b_run;
-	private IStreamTapper tapper;
+	private IStreamMonitor stMonitor;
 	private IStreamTamperer tamperer;
 
 	private TcpConnectionData nearEnd;
@@ -64,7 +64,7 @@ public class JGProxy {
 
 	private void initDefaults() {
 		b_run = true;
-		tapper = null;
+		stMonitor = null;
 		tamperer = null;
 		incoming  = null;
 		outgoing = null;
@@ -76,12 +76,12 @@ public class JGProxy {
 		farEnd = new TcpConnectionData(remoteHost, remotePort);
 	}
 
-	public IStreamTapper getTapper() {
-		return tapper;
+	public IStreamMonitor getStreamMonitor() {
+		return stMonitor;
 	}
 
-	public void setTapper(IStreamTapper tapper) {
-		this.tapper = tapper;
+	public void setStreamMonitor(IStreamMonitor monitor) {
+		this.stMonitor = monitor;
 	}
 
 	public IStreamTamperer getTamperer() {
@@ -123,12 +123,12 @@ public class JGProxy {
 				incoming = Server.accept();
 				outgoing = new Socket(farEnd.getHostName(), farEnd.getPort()); 
 
-				if (tapper == null) {
+				if (stMonitor == null) {
 					thread1 = new ProxyThread(incoming, outgoing);
 					thread2 = new ProxyThread(outgoing, incoming);
 				} else {
-					thread1 = new ProxyThread(incoming, outgoing, tapper);
-					thread2 = new ProxyThread(outgoing, incoming, tapper);
+					thread1 = new ProxyThread(incoming, outgoing, stMonitor);
+					thread2 = new ProxyThread(outgoing, incoming, stMonitor);
 				}
 				thread1.start();
 				thread2.start();

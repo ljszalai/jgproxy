@@ -23,36 +23,14 @@ Copyright 2013 Laszlo Szalai
  */
 
 package com.comuv.szalai.proxy;
-/*
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-/*
- * Tcp Proxy
- * 
- * Original author: Daniel W. Goldberg
- * Original source downloaded from 
- *     http://www.dwgold.com/Projects/Networking/Proxyserver/Default.aspx
- *      
- */
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import com.comuv.szalai.proxy.interfaces.IStreamTapper;
-import com.comuv.szalai.proxy.manipulators.ConsoleStreamTapper;
+import com.comuv.szalai.proxy.interfaces.IStreamMonitor;
+import com.comuv.szalai.proxy.manipulators.ConsoleStreamMonitor;
 
 class ProxyThread extends Thread {
 
@@ -60,7 +38,7 @@ class ProxyThread extends Thread {
 	
 	private Socket incoming;
 	private Socket outgoing;
-	private IStreamTapper tapper;
+	private IStreamMonitor streamMonitor;
 	
 
 	//Thread constructor
@@ -69,14 +47,14 @@ class ProxyThread extends Thread {
 	ProxyThread(Socket in, Socket out){
 		incoming = in;
 		outgoing = out;
-		tapper = new ConsoleStreamTapper();
+		streamMonitor = new ConsoleStreamMonitor();
 	}
 
 	// TODO value checking
-	ProxyThread(Socket in, Socket out, IStreamTapper tap){
+	ProxyThread(Socket in, Socket out, IStreamMonitor stMonitor){
 		incoming = in;
 		outgoing = out;
-		tapper = tap;
+		streamMonitor = stMonitor;
 	}
 
 	//Overwritten run() method of thread -- does the data transfers
@@ -96,8 +74,8 @@ class ProxyThread extends Thread {
 					incoming.close();
 					outgoing.close();
 				}
-				// Note Tap & tamper goes here ...
-				tapBuffer(buffer, numberRead);
+				// TODO monitoring & interception goes here ...
+				monitorBuffer(buffer, numberRead);
 				ToClient.write(buffer, 0, numberRead);
 
 
@@ -113,9 +91,9 @@ class ProxyThread extends Thread {
 
 	}
 	
-	private void tapBuffer(byte[] buffer, int count) {
-		if (tapper != null)
-			tapper.Tap(new StreamSlice(buffer, count));
+	private void monitorBuffer(byte[] buffer, int count) {
+		if (streamMonitor != null)
+			streamMonitor.doMonitor(new StreamSlice(buffer, count));
 	}
 
 }

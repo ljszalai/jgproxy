@@ -13,13 +13,26 @@ Copyright 2013 Laszlo Szalai
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+/*
+ * Tcp Proxy
+ * 
+ * Original author: Daniel W. Goldberg
+ * Original source downloaded from 
+ *     http://www.dwgold.com/Projects/Networking/Proxyserver/Default.aspx
+ *      
+ */
 
-package com.comuv.szalai.proxy.interfaces;
+package com.comuv.szalai.proxy.manipulators;
 
+import com.comuv.szalai.proxy.HexDump;
 import com.comuv.szalai.proxy.StreamSlice;
+import com.comuv.szalai.proxy.interfaces.IStreamMonitor;
 
-public interface IStreamTapper {
-	
-	public void Tap(StreamSlice streamSlice);
-	
+public class ConsoleStreamMonitor implements IStreamMonitor {
+
+	@Override
+	public void doMonitor(StreamSlice streamSlice) {
+		System.out.println(HexDump.dumpHexString(streamSlice.getBytes(), 0, streamSlice.getCount()));
+	}
+
 }
